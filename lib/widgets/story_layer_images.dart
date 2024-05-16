@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/modules/content_model.dart';
 import 'package:flutter_application/modules/parent_model.dart';
+import 'package:flutter_application/widgets/dragging_image.dart';
+import 'package:flutter_application/widgets/image_item.dart';
 
 class StoryLayerImages extends StatelessWidget {
   final List<ContentModel> images;
-  const StoryLayerImages({super.key, required this.images});
+  final GlobalKey draggableKey;
+  const StoryLayerImages(
+      {super.key, required this.images, required this.draggableKey});
 
   @override
   Widget build(BuildContext context) {
     List<List<ContentModel>> listImages = _getImageLayers(images);
-    debugPrint('>>>>> story layer images >>> list images = $listImages');
+    // debugPrint('>>>>> story layer images >>> list images = $listImages');
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: _getColumnChildren(listImages),
@@ -32,9 +36,16 @@ class StoryLayerImages extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Parent Image
-        Image.network(
-          'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=page${parentModel.sorPagerange}-2&s=${parentModel.pStorename}&mv=${parentModel.pMinorversion}',
+        SizedBox(
           height: 500,
+          child: ImageItem(
+            sorPagerange: parentModel.sorPagerange,
+            storeName: parentModel.pStorename,
+            minorversion: parentModel.pMinorversion,
+          ),
+          // Image.network(
+          //   'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=page${parentModel.sorPagerange}-2&s=${parentModel.pStorename}&mv=${parentModel.pMinorversion}',
+          // ),
         ),
         const SizedBox(
           height: 10,
@@ -47,8 +58,19 @@ class StoryLayerImages extends StatelessWidget {
             controller: ScrollController(),
             itemBuilder: (context, index) {
               ContentModel child = childImageList[index];
-              return Image.network(
-                'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=thumb&s=${child.storename}&mv=${child.minorversion}',
+              return Draggable<ContentModel>(
+                data: child,
+                dragAnchorStrategy: pointerDragAnchorStrategy,
+                feedback: DraggingImage(
+                  dragKey: draggableKey,
+                  storename: child.storename,
+                  minorversion: child.minorversion,
+                  //    'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=thumb&s=${child.storename}&mv=${child.minorversion}',
+                ),
+                child: ImageItem(
+                  storeName: child.storename,
+                  minorversion: child.minorversion,
+                ),
               );
             },
             separatorBuilder: (context, index) {

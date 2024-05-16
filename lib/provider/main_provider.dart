@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/consts/enums.dart';
 import 'package:flutter_application/modules/article_xml_model.dart';
@@ -25,6 +28,8 @@ class MainProvider extends ChangeNotifier {
   int? valueChannel;
   int? valueIssue;
   int? valueDossier;
+  String? imgUrl;
+  Uint8List? imgBytes;
 
   List<DossierModel> dossierContentList = [];
 
@@ -56,6 +61,7 @@ class MainProvider extends ChangeNotifier {
       // TODO:popup window
       return;
     }
+    //TODO: Loading
     //{ channelId: channelId, issueId: issueId, dossierId: dossierId }
     var url = 'http://localhost:5000/get_content_info';
 
@@ -87,7 +93,7 @@ class MainProvider extends ChangeNotifier {
           ResponseArticleXMLModel? resArticleXMLModel =
               await _getXML(channelTitle, issueTitle, articleName);
           debugPrint('<<< article name == $articleName');
-          debugPrint('<<< article plaintext == ${child.articlePlaintexts}');
+          // debugPrint('<<< article plaintext == ${child.articlePlaintexts}');
           if (resArticleXMLModel == null) break;
 
           int sepIndex =
@@ -99,14 +105,41 @@ class MainProvider extends ChangeNotifier {
               resArticleXMLModel.articleXMLs.sublist(0, sepIndex);
           dossierContentList[i].leadings =
               resArticleXMLModel.articleXMLs.sublist(sepIndex);
-          debugPrint(
-              '<<< titles length = ${dossierContentList[i].titles?.length}   leading length = ${dossierContentList[i].leadings?.length}');
+          // debugPrint(
+          //     '<<< titles length = ${dossierContentList[i].titles?.length}   leading length = ${dossierContentList[i].leadings?.length}');
           // Stop to inner loop
           break;
         }
       }
     }
     notifyListeners();
+  }
+
+  void setLeadingImage(String? imageUrl) {
+    imgBytes = null;
+    imgUrl = imageUrl;
+    notifyListeners();
+  }
+
+  void clearLeadingImage() {
+    imgUrl = null;
+    imgBytes = null;
+    notifyListeners();
+  }
+
+  void uploadImageFromLocal() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      // Specify that you want to pick an image.
+      type: FileType.image,
+      withData: true,
+    );
+    if (result != null) {
+      imgUrl = null;
+      imgBytes = result.files.single.bytes;
+      notifyListeners();
+    } else {
+      debugPrint('No image selected.');
+    }
   }
 
   // Get seperate index from list which is descented sorted by fontsize
@@ -141,8 +174,8 @@ class MainProvider extends ChangeNotifier {
         headers: headers, body: json.encode(request));
     ResponseArticleXMLModel resArticleXMLModel =
         ResponseArticleXMLModel.fromJson(json.decode(response.body));
-    debugPrint(
-        '<<<_getXML -> resArticleXMLModel list ==== ${resArticleXMLModel.articleXMLs}');
+    // debugPrint(
+    //     '<<<_getXML -> resArticleXMLModel list ==== ${resArticleXMLModel.articleXMLs}');
     return resArticleXMLModel;
   }
 

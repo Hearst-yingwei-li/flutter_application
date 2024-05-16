@@ -5,8 +5,8 @@ import 'package:flutter_application/widgets/list_item_story.dart';
 import 'package:provider/provider.dart';
 
 class MagazineContent extends StatelessWidget {
-  const MagazineContent({super.key});
-
+  const MagazineContent({super.key, required this.draggableKey});
+  final GlobalKey draggableKey;
   @override
   Widget build(BuildContext context) {
     return Consumer<MainProvider>(
@@ -21,6 +21,7 @@ class MagazineContent extends StatelessWidget {
 
               return ListItemStory(
                 dossierModel: dossierModel,
+                draggableKey: draggableKey,
               );
             },
             separatorBuilder: (context, index) {

@@ -6,9 +6,11 @@ import 'package:flutter_application/widgets/story_layer_images.dart';
 
 class ListItemStory extends StatelessWidget {
   final DossierModel dossierModel;
+  final GlobalKey draggableKey;
   const ListItemStory({
     super.key,
     required this.dossierModel,
+    required this.draggableKey,
   });
 
   @override
@@ -69,7 +71,10 @@ class ListItemStory extends StatelessWidget {
           '=== Images ===',
           style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
         ),
-        StoryLayerImages(images: images),
+        StoryLayerImages(
+          images: images,
+          draggableKey: draggableKey,
+        ),
         const SizedBox(
           height: 10,
         ),
@@ -92,7 +97,8 @@ class ListItemStory extends StatelessWidget {
     return listPlaintexts;
   }
 
-  List<SelectableText> _getArticleXMLText(List<ArticleXMLModel>? titleXMLModels) {
+  List<SelectableText> _getArticleXMLText(
+      List<ArticleXMLModel>? titleXMLModels) {
     if (titleXMLModels == null || titleXMLModels.isEmpty) return [];
     List<SelectableText> listTitles = [];
     for (var child in titleXMLModels) {

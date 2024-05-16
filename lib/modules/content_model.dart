@@ -1,4 +1,3 @@
-import 'package:flutter_application/modules/article_xml_model.dart';
 import 'package:flutter_application/modules/parent_model.dart';
 import 'package:flutter_application/utils/utils.dart';
 import 'package:json_annotation/json_annotation.dart';

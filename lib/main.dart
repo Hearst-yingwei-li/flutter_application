@@ -3,12 +3,12 @@ import 'dart:ui';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/consts/enums.dart';
-import 'package:flutter_application/modules/dossier_model.dart';
 import 'package:flutter_application/provider/main_provider.dart';
+import 'package:flutter_application/tests/test_image_upload.dart';
 import 'package:flutter_application/widgets/custom_dropdown.dart';
 import 'package:flutter_application/widgets/edition_container.dart';
-import 'package:flutter_application/widgets/list_item_story.dart';
 import 'package:flutter_application/widgets/magazine_contents.dart';
+import 'package:flutter_application/tests/test_draggable_list.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -54,14 +54,17 @@ class MyApp extends StatelessWidget {
         dragDevices: {PointerDeviceKind.mouse},
       ),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home: const HomePage(),
+      home: 
+      // const TestImageUpload(),
+      // const TestDraggablePageStateless(),
+      HomePage(),
     );
   }
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
+  HomePage({super.key});
+  final GlobalKey _draggableKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,16 +77,21 @@ class HomePage extends StatelessWidget {
         ),
         child: Column(children: [
           _dropdownRow(),
-          const Expanded(
+          const SizedBox(
+            height: 10,
+          ),
+          Expanded(
             child: Row(
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Flexible(
                   flex: 4,
-                  child: MagazineContent(),
+                  child: MagazineContent(
+                    draggableKey: _draggableKey,
+                  ),
                 ),
-                DottedLine(
+                const DottedLine(
                   direction: Axis.vertical,
                 ),
                 Flexible(
