@@ -9,7 +9,7 @@ part of 'parent_model.dart';
 ParentModel _$ParentModelFromJson(Map<String, dynamic> json) => ParentModel(
       parentId: (json['parentId'] as num).toInt(),
       pMinorversion: (json['p_minorversion'] as num).toInt(),
-      sorPagerange: json['sor_pagerange'] as String,
+      sorPagerange: Utils.formatPagerange(json['sor_pagerange'] as String?),
       pStorename: Utils.decodeUrl(json['p_storename'] as String),
     );
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_application/modules/content_model.dart';
 import 'package:flutter_application/modules/parent_model.dart';
 import 'package:flutter_application/widgets/dragging_image.dart';
@@ -13,7 +14,7 @@ class StoryLayerImages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<List<ContentModel>> listImages = _getImageLayers(images);
-    // debugPrint('>>>>> story layer images >>> list images = $listImages');
+    debugPrint('>>>>> story layer images >>> list images = $listImages');
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: _getColumnChildren(listImages),
@@ -43,9 +44,6 @@ class StoryLayerImages extends StatelessWidget {
             storeName: parentModel.pStorename,
             minorversion: parentModel.pMinorversion,
           ),
-          // Image.network(
-          //   'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=page${parentModel.sorPagerange}-2&s=${parentModel.pStorename}&mv=${parentModel.pMinorversion}',
-          // ),
         ),
         const SizedBox(
           height: 10,
@@ -99,6 +97,7 @@ class StoryLayerImages extends StatelessWidget {
         // pop all element to list
         listImages.add(List.from(stack));
         stack.clear();
+        stack.add(image);
       }
     }
     listImages.add(List.from(stack));

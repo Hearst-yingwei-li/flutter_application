@@ -30,6 +30,7 @@ class MainProvider extends ChangeNotifier {
   int? valueDossier;
   String? imgUrl;
   Uint8List? imgBytes;
+  bool isLoading = false;
 
   List<DossierModel> dossierContentList = [];
 
@@ -61,6 +62,8 @@ class MainProvider extends ChangeNotifier {
       // TODO:popup window
       return;
     }
+    isLoading = true;
+    notifyListeners();
     //TODO: Loading
     //{ channelId: channelId, issueId: issueId, dossierId: dossierId }
     var url = 'http://localhost:5000/get_content_info';
@@ -70,7 +73,9 @@ class MainProvider extends ChangeNotifier {
       "issueId": valueIssue,
       "dossierId": valueDossier
     };
+    debugPrint("channelId = $valueChannel  issueId = $valueIssue  dossierId = $valueDossier");
     final headers = {'Content-Type': 'application/json'};
+    // TODO: Try-Catch block
     final response = await http.post(Uri.parse(url),
         headers: headers, body: json.encode(request));
     // debugPrint('response data == ${response.body}');
@@ -112,6 +117,7 @@ class MainProvider extends ChangeNotifier {
         }
       }
     }
+    isLoading = false;
     notifyListeners();
   }
 

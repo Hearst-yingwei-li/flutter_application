@@ -46,7 +46,7 @@ class ListItemStory extends StatelessWidget {
         images.add(child);
       }
     }
-    // debugPrint('>>>>> images = $images');
+    // debugPrint('>>>>> create story widget ----> images = ${images.length}');
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +60,7 @@ class ListItemStory extends StatelessWidget {
           height: 10,
         ),
         const Text(
-          '=== Possible Leadings ===',
+          '=== Possible Leads ===',
           style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
         ),
         ..._getArticleXMLText(dossierModel.leadings),

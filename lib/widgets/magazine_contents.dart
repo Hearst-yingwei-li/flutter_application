@@ -13,23 +13,32 @@ class MagazineContent extends StatelessWidget {
       builder: (context, MainProvider model, child) {
         return Padding(
           padding: const EdgeInsets.all(8.0),
-          child: ListView.separated(
-            shrinkWrap: true,
-            itemCount: model.dossierContentList.length,
-            itemBuilder: (context, index) {
-              DossierModel dossierModel = model.dossierContentList[index];
+          child: model.isLoading
+              ? const Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(child: SizedBox()),
+                    CircularProgressIndicator(),
+                    Expanded(child: SizedBox()),
+                  ],
+                )
+              : ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: model.dossierContentList.length,
+                  itemBuilder: (context, index) {
+                    DossierModel dossierModel = model.dossierContentList[index];
 
-              return ListItemStory(
-                dossierModel: dossierModel,
-                draggableKey: draggableKey,
-              );
-            },
-            separatorBuilder: (context, index) {
-              return const SizedBox(
-                height: 10,
-              );
-            },
-          ),
+                    return ListItemStory(
+                      dossierModel: dossierModel,
+                      draggableKey: draggableKey,
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return const SizedBox(
+                      height: 10,
+                    );
+                  },
+                ),
         );
       },
     );

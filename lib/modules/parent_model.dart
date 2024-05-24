@@ -7,9 +7,9 @@ class ParentModel {
   final int parentId;
   @JsonKey(name: 'p_minorversion')
   final int pMinorversion;
-  @JsonKey(name: 'sor_pagerange')
+  @JsonKey(name: 'sor_pagerange', fromJson: Utils.formatPagerange)
   final String sorPagerange;
-  @JsonKey(fromJson: Utils.decodeUrl, name: 'p_storename')
+  @JsonKey(name: 'p_storename', fromJson: Utils.decodeUrl)
   final String pStorename;
 
   ParentModel({
@@ -31,8 +31,9 @@ class ParentModel {
 
   @override
   bool operator ==(Object other) {
-    // Type check for 'other' being exactly an instance of 'Person'
-    if (identical(this, other)) return true;
+    // Type check for 'other' being exactly an instance of 'ParentModel'
+    // debugPrint('<<< ParentModel  identical -- ${identical(this, other)}');
+    // if (identical(this, other)) return true;
     return other is ParentModel &&
         other.parentId == parentId &&
         other.pMinorversion == pMinorversion &&

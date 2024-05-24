@@ -145,6 +145,21 @@ class HomePage extends StatelessWidget {
             );
           }),
         ),
+        const Expanded(child: SizedBox()),
+        Container(
+          height: 45,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Consumer<MainProvider>(
+              builder: (context, MainProvider model, child) {
+            return OutlinedButton(
+              onPressed: () {
+                debugPrint('Confirm');
+                model.getDossierContent();
+              },
+              child: const Text('Confirm'),
+            );
+          }),
+        )
       ],
     );
   }

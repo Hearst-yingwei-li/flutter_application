@@ -15,14 +15,18 @@ class ImageItem extends StatelessWidget {
     //'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=page${parentModel.sorPagerange}-2&s=${parentModel.pStorename}&mv=${parentModel.pMinorversion}',
     //'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=thumb&s=${child.storename}&mv=${child.minorversion}'
     if (sorPagerange != null) {
-      // Parent Image
+      //parent image
       return Image.network(
         'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=page$sorPagerange-2&s=$storeName&mv=$minorversion',
       );
     } else {
-      // Child Image
-      return Image.network(
-        'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=thumb&s=$storeName&mv=$minorversion',
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(5),
+          child: Image.network(
+            'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=thumb&s=$storeName&mv=$minorversion',
+          ),
+        ),
       );
     }
   }
