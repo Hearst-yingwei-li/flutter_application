@@ -1,3 +1,4 @@
+import 'package:flutter_application/modules/article_xml_model.dart';
 import 'package:flutter_application/modules/parent_model.dart';
 import 'package:flutter_application/utils/utils.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -14,6 +15,7 @@ class ContentModel {
   final ParentModel parent;
   @JsonKey(name: 'article_plaintexts')
   final List<String>? articlePlaintexts;
+  final List<ArticleXMLModel>? headlines;
 
   ContentModel({
     required this.id,
@@ -22,6 +24,7 @@ class ContentModel {
     required this.storename,
     required this.type,
     required this.parent,
+    this.headlines,
     this.articlePlaintexts,
   });
 
@@ -32,6 +35,6 @@ class ContentModel {
 
   @override
   String toString() {
-    return 'ContentModel: {id: $id, name: $name, type: $type, storename:$storename, minorversion:$minorversion  articles:$articlePlaintexts}';
+    return 'ContentModel: {id: $id, name: $name, type: $type, storename:$storename, minorversion:$minorversion  articles:$articlePlaintexts} headlines:$headlines';
   }
 }

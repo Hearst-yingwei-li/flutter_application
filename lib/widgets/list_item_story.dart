@@ -55,7 +55,7 @@ class ListItemStory extends StatelessWidget {
           '=== Possible Titles ===',
           style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
         ),
-        ..._getArticleXMLText(dossierModel.titles),
+        ..._getArticleXMLText(dossierModel.childs, true),
         const SizedBox(
           height: 10,
         ),
@@ -63,7 +63,7 @@ class ListItemStory extends StatelessWidget {
           '=== Possible Leads ===',
           style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
         ),
-        ..._getArticleXMLText(dossierModel.leadings),
+        ..._getArticleXMLText(dossierModel.childs, false),
         const SizedBox(
           height: 10,
         ),
@@ -98,13 +98,41 @@ class ListItemStory extends StatelessWidget {
   }
 
   List<SelectableText> _getArticleXMLText(
-      List<ArticleXMLModel>? titleXMLModels) {
-    if (titleXMLModels == null || titleXMLModels.isEmpty) return [];
-    List<SelectableText> listTitles = [];
-    for (var child in titleXMLModels) {
-      SelectableText text = SelectableText('・${child.snipText}');
-      listTitles.add(text);
+      List<ContentModel> listContent, bool isTitle) {
+    List<SelectableText> listResult = [];
+    List<ArticleXMLModel> listTarget = [];
+    for (var content in listContent) {
+      List<ArticleXMLModel>? headlines = content.headlines;
+      if (headlines == null) continue;
+      int sepIndex = _getHeadlinesAndLeadingsIndex(headlines);
+      if (isTitle) {
+        listTarget.addAll(headlines.sublist(0, sepIndex));
+      } else {
+        listTarget.addAll(headlines.sublist(sepIndex));
+      }
     }
-    return listTitles;
+    for (ArticleXMLModel content in listTarget) {
+      SelectableText text = SelectableText('・${content.snipText}');
+      listResult.add(text);
+    }
+    // debugPrint('headlines ------------ $listResult');
+    return listResult;
+  }
+
+  int _getHeadlinesAndLeadingsIndex(List<ArticleXMLModel> articleXMLModels) {
+    int titleMaxCount = 3;
+    double? minSize;
+    int titleCount = 0;
+    for (var i = 0; i < articleXMLModels.length; i++) {
+      ArticleXMLModel item = articleXMLModels[i];
+      if (minSize == null ||
+          (titleCount < titleMaxCount && item.fontSize < minSize)) {
+        titleCount++;
+        minSize = item.fontSize;
+      } else {
+        return i;
+      }
+    }
+    return 0;
   }
 }

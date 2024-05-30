@@ -73,50 +73,16 @@ class MainProvider extends ChangeNotifier {
       "issueId": valueIssue,
       "dossierId": valueDossier
     };
-    debugPrint("channelId = $valueChannel  issueId = $valueIssue  dossierId = $valueDossier");
+    debugPrint(
+        "channelId = $valueChannel  issueId = $valueIssue  dossierId = $valueDossier");
     final headers = {'Content-Type': 'application/json'};
     // TODO: Try-Catch block
     final response = await http.post(Uri.parse(url),
         headers: headers, body: json.encode(request));
-    // debugPrint('response data == ${response.body}');
+    debugPrint('response data == ${json.decode(response.body)}');
     DossierResponseModel dossierResponseModel =
         DossierResponseModel.fromJson(json.decode(response.body));
     dossierContentList = List.from(dossierResponseModel.data);
-    for (int i = 0; i < dossierContentList.length; i++) {
-      DossierModel dossierModel = dossierContentList[i];
-      // for (DossierModel dossierModel in dossierContentList) {
-      // parse article xml
-      for (int j = 0; j < dossierModel.childs.length; j++) {
-        // ContentModel child = dossierModel.childs[j];
-        // for (ContentModel child in dossierModel.childs) {
-        ContentModel child = dossierModel.childs[j];
-        if (child.type == 'Article') {
-          String channelTitle =
-              _getDropdownTitle(EnumDropdown.channel, valueChannel);
-          String issueTitle = _getDropdownTitle(EnumDropdown.issue, valueIssue);
-          String articleName = child.name;
-          ResponseArticleXMLModel? resArticleXMLModel =
-              await _getXML(channelTitle, issueTitle, articleName);
-          debugPrint('<<< article name == $articleName');
-          // debugPrint('<<< article plaintext == ${child.articlePlaintexts}');
-          if (resArticleXMLModel == null) break;
-
-          int sepIndex =
-              _getHeadlinesAndLeadingsIndex(resArticleXMLModel.articleXMLs);
-          // TODO: compaire plaintext and xml content,
-          // first three lines should be title
-          // match plaintext and xml snipText, trim according content by charCount from xml file
-          dossierContentList[i].titles =
-              resArticleXMLModel.articleXMLs.sublist(0, sepIndex);
-          dossierContentList[i].leadings =
-              resArticleXMLModel.articleXMLs.sublist(sepIndex);
-          // debugPrint(
-          //     '<<< titles length = ${dossierContentList[i].titles?.length}   leading length = ${dossierContentList[i].leadings?.length}');
-          // Stop to inner loop
-          break;
-        }
-      }
-    }
     isLoading = false;
     notifyListeners();
   }
@@ -146,43 +112,6 @@ class MainProvider extends ChangeNotifier {
     } else {
       debugPrint('No image selected.');
     }
-  }
-
-  // Get seperate index from list which is descented sorted by fontsize
-  int _getHeadlinesAndLeadingsIndex(List<ArticleXMLModel> articleXMLModels) {
-    int titleMaxCount = 3;
-    double? minSize;
-    int titleCount = 0;
-    for (var i = 0; i < articleXMLModels.length; i++) {
-      ArticleXMLModel item = articleXMLModels[i];
-      if (minSize == null ||
-          (titleCount < titleMaxCount && item.fontSize < minSize)) {
-        titleCount++;
-        minSize = item.fontSize;
-      } else {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  Future<ResponseArticleXMLModel?> _getXML(
-      String channel, String issue, String articleName) async {
-    if (channel.isEmpty || issue.isEmpty || articleName.isEmpty) return null;
-    Map<String, dynamic> request = {
-      "channel": channel,
-      "issue": issue,
-      "articleName": articleName,
-    };
-    String url = 'http://localhost:5000/get_xml';
-    final headers = {'Content-Type': 'application/json'};
-    final response = await http.post(Uri.parse(url),
-        headers: headers, body: json.encode(request));
-    ResponseArticleXMLModel resArticleXMLModel =
-        ResponseArticleXMLModel.fromJson(json.decode(response.body));
-    // debugPrint(
-    //     '<<<_getXML -> resArticleXMLModel list ==== ${resArticleXMLModel.articleXMLs}');
-    return resArticleXMLModel;
   }
 
   void _getChannelData() async {
@@ -235,28 +164,28 @@ class MainProvider extends ChangeNotifier {
     return temp;
   }
 
-  String _getDropdownTitle(EnumDropdown enumDropdown, int? value) {
-    if (value == null) return '';
-    List<DropdownMenuEntry<int>>? entries;
-    switch (enumDropdown) {
-      case EnumDropdown.channel:
-        entries = channels;
-        break;
-      case EnumDropdown.issue:
-        entries = issues;
-        break;
-      case EnumDropdown.dossier:
-        entries = dossiers;
-        break;
-      default:
-        break;
-    }
-    if (entries == null) return '';
-    for (DropdownMenuEntry<int> entryValue in entries) {
-      if (entryValue.value == value) {
-        return entryValue.label;
-      }
-    }
-    return '';
-  }
+  // String _getDropdownTitle(EnumDropdown enumDropdown, int? value) {
+  //   if (value == null) return '';
+  //   List<DropdownMenuEntry<int>>? entries;
+  //   switch (enumDropdown) {
+  //     case EnumDropdown.channel:
+  //       entries = channels;
+  //       break;
+  //     case EnumDropdown.issue:
+  //       entries = issues;
+  //       break;
+  //     case EnumDropdown.dossier:
+  //       entries = dossiers;
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  //   if (entries == null) return '';
+  //   for (DropdownMenuEntry<int> entryValue in entries) {
+  //     if (entryValue.value == value) {
+  //       return entryValue.label;
+  //     }
+  //   }
+  //   return '';
+  // }
 }

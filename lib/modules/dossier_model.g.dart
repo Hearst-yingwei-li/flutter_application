@@ -14,12 +14,6 @@ DossierModel _$DossierModelFromJson(Map<String, dynamic> json) => DossierModel(
       childs: (json['childs'] as List<dynamic>)
           .map((e) => ContentModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      titles: (json['titles'] as List<dynamic>?)
-          ?.map((e) => ArticleXMLModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      leadings: (json['leadings'] as List<dynamic>?)
-          ?.map((e) => ArticleXMLModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
     );
 
 Map<String, dynamic> _$DossierModelToJson(DossierModel instance) =>
@@ -29,6 +23,4 @@ Map<String, dynamic> _$DossierModelToJson(DossierModel instance) =>
       'name': instance.name,
       'pagerange': instance.pagerange,
       'childs': instance.childs,
-      'titles': instance.titles,
-      'leadings': instance.leadings,
     };

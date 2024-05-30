@@ -13,6 +13,9 @@ ContentModel _$ContentModelFromJson(Map<String, dynamic> json) => ContentModel(
       storename: Utils.decodeUrl(json['storename'] as String),
       type: json['type'] as String,
       parent: ParentModel.fromJson(json['parent'] as Map<String, dynamic>),
+      headlines: (json['headlines'] as List<dynamic>?)
+          ?.map((e) => ArticleXMLModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
       articlePlaintexts: (json['article_plaintexts'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
@@ -27,4 +30,5 @@ Map<String, dynamic> _$ContentModelToJson(ContentModel instance) =>
       'type': instance.type,
       'parent': instance.parent,
       'article_plaintexts': instance.articlePlaintexts,
+      'headlines': instance.headlines,
     };
