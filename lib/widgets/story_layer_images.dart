@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_application/modules/content_model.dart';
 import 'package:flutter_application/modules/parent_model.dart';
+import 'package:flutter_application/provider/main_provider.dart';
+import 'package:flutter_application/utils/utils.dart';
 import 'package:flutter_application/widgets/dragging_image.dart';
-import 'package:flutter_application/widgets/image_item.dart';
+import 'package:provider/provider.dart';
 
 class StoryLayerImages extends StatelessWidget {
   final List<ContentModel> images;
@@ -14,7 +15,7 @@ class StoryLayerImages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<List<ContentModel>> listImages = _getImageLayers(images);
-    debugPrint('>>>>> story layer images >>> list images = $listImages');
+    // debugPrint('>>>>> story layer images >>> list images = $listImages');
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: _getColumnChildren(listImages),
@@ -39,10 +40,9 @@ class StoryLayerImages extends StatelessWidget {
         // Parent Image
         SizedBox(
           height: 500,
-          child: ImageItem(
-            sorPagerange: parentModel.sorPagerange,
-            storeName: parentModel.pStorename,
-            minorversion: parentModel.pMinorversion,
+          child: Image.network(
+            Utils.getImageUrl(parentModel.pStorename, parentModel.pMinorversion,
+                sorPagerange: parentModel.sorPagerange),
           ),
         ),
         const SizedBox(
@@ -55,20 +55,47 @@ class StoryLayerImages extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             controller: ScrollController(),
             itemBuilder: (context, index) {
-              ContentModel child = childImageList[index];
-              return Draggable<ContentModel>(
-                data: child,
-                dragAnchorStrategy: pointerDragAnchorStrategy,
-                feedback: DraggingImage(
-                  dragKey: draggableKey,
-                  storename: child.storename,
-                  minorversion: child.minorversion,
-                  //    'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=thumb&s=${child.storename}&mv=${child.minorversion}',
-                ),
-                child: ImageItem(
-                  storeName: child.storename,
-                  minorversion: child.minorversion,
-                ),
+              ContentModel childModel = childImageList[index];
+              String imageUrl = Utils.getImageUrl(
+                  childModel.storename, childModel.minorversion);
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Draggable<ContentModel>(
+                      data: childModel,
+                      dragAnchorStrategy: pointerDragAnchorStrategy,
+                      feedback: DraggingImage(
+                        dragKey: draggableKey,
+                        storename: childModel.storename,
+                        minorversion: childModel.minorversion,
+                      ),
+                      child: Image.network(
+                        imageUrl,
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Consumer<MainProvider>(
+                        builder: (BuildContext context, MainProvider provider,
+                            Widget? child) {
+                          return Checkbox(
+                            value: provider.selectedImages
+                                .containsKey(childModel.id),
+                            onChanged: (value) {
+                              provider.changeImageSelectionStatus(
+                                  childModel.id, childModel.name, imageUrl);
+                            },
+                          );
+                        },
+                      ),
+                      Text(childModel.name)
+                    ],
+                  )
+                ],
               );
             },
             separatorBuilder: (context, index) {

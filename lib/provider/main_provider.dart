@@ -3,12 +3,9 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/consts/enums.dart';
-import 'package:flutter_application/modules/article_xml_model.dart';
-import 'package:flutter_application/modules/content_model.dart';
 import 'package:flutter_application/modules/dossier_model.dart';
 import 'package:flutter_application/modules/dossier_response_model.dart';
 import 'package:flutter_application/modules/dropdown_model.dart';
-import 'package:flutter_application/modules/response_article_xml_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -33,6 +30,7 @@ class MainProvider extends ChangeNotifier {
   bool isLoading = false;
 
   List<DossierModel> dossierContentList = [];
+  Map<int, Map<String, String>> selectedImages = {};
 
   void changeDropdownValue(EnumDropdown dropdownType, dynamic value) {
     switch (dropdownType) {
@@ -164,28 +162,26 @@ class MainProvider extends ChangeNotifier {
     return temp;
   }
 
-  // String _getDropdownTitle(EnumDropdown enumDropdown, int? value) {
-  //   if (value == null) return '';
-  //   List<DropdownMenuEntry<int>>? entries;
-  //   switch (enumDropdown) {
-  //     case EnumDropdown.channel:
-  //       entries = channels;
-  //       break;
-  //     case EnumDropdown.issue:
-  //       entries = issues;
-  //       break;
-  //     case EnumDropdown.dossier:
-  //       entries = dossiers;
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  //   if (entries == null) return '';
-  //   for (DropdownMenuEntry<int> entryValue in entries) {
-  //     if (entryValue.value == value) {
-  //       return entryValue.label;
-  //     }
-  //   }
-  //   return '';
-  // }
+  void changeImageSelectionStatus(
+      int imageId, String imageName, String imageUrl) {
+    // debugPrint(
+    //     '------ imageId = $imageId  imageName = $imageName  imageUrl = $imageUrl');
+
+    Map<String, String>? imageInfo = selectedImages[imageId];
+
+    if (imageInfo == null) {
+      // check - add new entity - check
+      selectedImages[imageId] = {"imageName": imageName, "imageUrl": imageUrl};
+    } else {
+      // uncheck
+      selectedImages.removeWhere((key, value) => key == imageId);
+    }
+    notifyListeners();
+    // debugPrint('selectedImages ----- $selectedImages');
+  }
+
+  void clearSelectionStatus() {
+    selectedImages.clear();
+    notifyListeners();
+  }
 }

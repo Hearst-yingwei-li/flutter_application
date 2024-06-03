@@ -15,4 +15,8 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+- Build .g.dart
 flutter packages pub run build_runner build --delete-conflicting-outputs
+
+- In development process to avoid CORS issue in web
+flutter run -d chrome --web-browser-flag "--disable-web-security"
