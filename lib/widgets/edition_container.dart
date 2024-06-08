@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_application/modules/content_model.dart';
 import 'package:flutter_application/provider/main_provider.dart';
+import 'package:flutter_application/widgets/body_content_image_widget.dart';
+import 'package:flutter_application/widgets/body_content_list_widget.dart';
+import 'package:flutter_application/widgets/body_content_textinput_widget.dart';
+import 'package:flutter_application/widgets/image_drop_widget.dart';
 import 'package:provider/provider.dart';
 
 class EditionContainer extends StatelessWidget {
@@ -51,7 +55,13 @@ class EditionContainer extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _imageDropArea(),
+                ImageDropWidget(
+                  isLeadingImage: true,
+                  onDropCallback: (imgUrl) {
+                    Provider.of<MainProvider>(context, listen: false)
+                        .setLeadingImage(imgUrl);
+                  },
+                ),
                 const SizedBox(
                   width: 10,
                 ),
@@ -59,11 +69,11 @@ class EditionContainer extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _btnDelete(),
+                    _btnDelete(context),
                     const SizedBox(
                       height: 10,
                     ),
-                    _btnUploadFromLocal()
+                    _btnUploadFromLocal(context),
                   ],
                 )
               ],
@@ -74,8 +84,31 @@ class EditionContainer extends StatelessWidget {
               height: 15,
             ),
             _titleWidget('Body'),
-            // Image
-            _bodyTextInput(),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    // Add text edit
+                    Provider.of<MainProvider>(context, listen: false)
+                        .createBodyTextEditWidget();
+                  },
+                  icon: const Icon(Icons.text_fields),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                IconButton(
+                  onPressed: () {
+                    // Add drop image
+                    Provider.of<MainProvider>(context, listen: false)
+                        .createBodyImageWidget();
+                  },
+                  icon: const Icon(Icons.image),
+                ),
+              ],
+            ),
+            const BodyContentListWidget(),
           ],
         ),
       ),
@@ -185,54 +218,6 @@ class EditionContainer extends StatelessWidget {
     );
   }
 
-  Widget _imageDropArea() {
-    return Consumer<MainProvider>(
-        builder: (context, MainProvider provider, child) {
-      return DragTarget<ContentModel>(
-        builder: (context, candidateItems, rejectedItems) {
-          return DottedBorder(
-            color: Colors.grey,
-            dashPattern: const [6, 3],
-            borderType: BorderType.RRect,
-            radius: const Radius.circular(12),
-            child: SizedBox(
-              height: 300,
-              width: 300,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const Text('Drop area'),
-                  Consumer<MainProvider>(
-                    builder: (context, MainProvider provider, child) {
-                      return _getLeadingImage(provider);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-        onAcceptWithDetails: (details) {
-          ContentModel contentModel = details.data;
-          String imgUrl =
-              'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=thumb&s=${contentModel.storename}&mv=${contentModel.minorversion}';
-          debugPrint('set state leading image = ----- $imgUrl');
-          provider.setLeadingImage(imgUrl);
-        },
-      );
-    });
-  }
-
-  Widget _getLeadingImage(MainProvider provider) {
-    if (provider.imgUrl == null && provider.imgBytes == null) {
-      return Container();
-    } else if (provider.imgUrl != null) {
-      return Image.network(provider.imgUrl!);
-    } else {
-      return Image.memory(provider.imgBytes!);
-    }
-  }
-
   Widget _bodyTextInput() {
     return TextField(
       controller: _bodyInputController,
@@ -246,28 +231,22 @@ class EditionContainer extends StatelessWidget {
     );
   }
 
-  Widget _btnDelete() {
-    return Consumer<MainProvider>(
-        builder: (context, MainProvider provider, child) {
-      return OutlinedButton(
-        onPressed: () {
-          provider.clearLeadingImage();
-        },
-        child: const Text('Clear'),
-      );
-    });
+  Widget _btnDelete(BuildContext context) {
+    return OutlinedButton(
+      onPressed: () {
+        Provider.of<MainProvider>(context, listen: false).clearLeadingImage();
+      },
+      child: const Text('Clear'),
+    );
   }
 
-  Widget _btnUploadFromLocal() {
-    return Consumer<MainProvider>(
-        builder: (context, MainProvider provider, child) {
-      return OutlinedButton(
-        onPressed: () {
-          // TODO:
-          provider.uploadImageFromLocal();
-        },
-        child: const Text('Upload'),
-      );
-    });
+  Widget _btnUploadFromLocal(BuildContext context) {
+    return OutlinedButton(
+      onPressed: () {
+        Provider.of<MainProvider>(context, listen: false)
+            .uploadLeadingImageFromLocal();
+      },
+      child: const Text('Upload'),
+    );
   }
 }

@@ -5,6 +5,8 @@ enum EnumDropdown {
   dossier;
 }
 
+enum EnumWidgetType { textInput, image, link }
+
   // --------------
   // // param example
   // enum Test{

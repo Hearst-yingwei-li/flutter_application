@@ -28,6 +28,13 @@ class MainProvider extends ChangeNotifier {
   String? imgUrl;
   Uint8List? imgBytes;
   bool isLoading = false;
+  List<Map<String, dynamic>> bodyContents = [
+    {
+      'controller': TextEditingController(),
+      'ukey': UniqueKey(),
+      'type': EnumWidgetType.textInput
+    },
+  ];
 
   List<DossierModel> dossierContentList = [];
   Map<int, Map<String, String>> selectedImages = {};
@@ -77,7 +84,7 @@ class MainProvider extends ChangeNotifier {
     // TODO: Try-Catch block
     final response = await http.post(Uri.parse(url),
         headers: headers, body: json.encode(request));
-    debugPrint('response data == ${json.decode(response.body)}');
+    // debugPrint('response data == ${json.decode(response.body)}');
     DossierResponseModel dossierResponseModel =
         DossierResponseModel.fromJson(json.decode(response.body));
     dossierContentList = List.from(dossierResponseModel.data);
@@ -97,7 +104,7 @@ class MainProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void uploadImageFromLocal() async {
+  void uploadLeadingImageFromLocal() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       // Specify that you want to pick an image.
       type: FileType.image,
@@ -182,6 +189,40 @@ class MainProvider extends ChangeNotifier {
 
   void clearSelectionStatus() {
     selectedImages.clear();
+    notifyListeners();
+  }
+
+  void createBodyTextEditWidget() {
+    Map<String, dynamic> item = {
+      'controller': TextEditingController(),
+      'ukey': UniqueKey(),
+      'type': EnumWidgetType.textInput
+    };
+    bodyContents.add(item);
+    notifyListeners();
+  }
+
+  void removeBodyWidget(Key key) {
+    bodyContents.removeWhere((field) => field['ukey'] == key);
+    notifyListeners();
+  }
+
+  void createBodyImageWidget() {
+    Map<String, dynamic> item = {
+      'url': '',
+      'ukey': UniqueKey(),
+      'type': EnumWidgetType.image
+    };
+    bodyContents.add(item);
+    notifyListeners();
+  }
+
+  void updateBodyImageWidget(String url, Key key) {
+    var contentIndex =
+        bodyContents.indexWhere((element) => element['ukey'] == key);
+    bodyContents[contentIndex]['url'] = url;
+    debugPrint('update body image url === $url \n bodycontent = $bodyContents');
+
     notifyListeners();
   }
 }
