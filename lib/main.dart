@@ -4,21 +4,21 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/consts/enums.dart';
 import 'package:flutter_application/provider/main_provider.dart';
+import 'package:flutter_application/utils/proxy_request.dart';
 import 'package:flutter_application/widgets/custom_dropdown.dart';
 import 'package:flutter_application/widgets/edition_container.dart';
 import 'package:flutter_application/widgets/magazine_contents.dart';
 import 'package:provider/provider.dart';
-// import 'dart:html' as html;
-// import 'package:http/http.dart' as http;
+import 'dart:html' as html;
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   //
-//   await Firebase.initializeApp(
-//   options: DefaultFirebaseOptions.currentPlatform,
-// );
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   //
   runApp(
     MultiProvider(
@@ -136,7 +136,8 @@ class HomePage extends StatelessWidget {
           width: 15,
         ),
         const CustomDropdown(
-            enumDropdown: EnumDropdown.dossier, defaultText: '--All--'),
+            enumDropdown: EnumDropdown.dossier,
+            defaultText: '--dossier--'), //'--dossier--'
         const SizedBox(
           width: 15,
         ),
@@ -198,38 +199,36 @@ class HomePage extends StatelessWidget {
 
   Future<bool> _downloadImages(
       Map<int, Map<String, String>> selectedImages) async {
-        // FIXME: command off download related code for compute engine ubuntu env
-        return true;
-
-    // for (var imageInfo in selectedImages.values) {
-    //   String? imageName = imageInfo['imageName'];
-    //   String? imageUrl = imageInfo['imageUrl'];
-    //   if (imageName == null || imageUrl == null) return false;
-    //   try {
-    //     final response = await http.get(Uri.parse(imageUrl));
-    //     if (response.statusCode == 200) {
-    //       // Convert response body to bytes
-    //       final bytes = response.bodyBytes;
-    //       // Create a blob from the bytes
-    //       final blob = html.Blob([bytes]);
-    //       // Create an object URL for the blob
-    //       final url = html.Url.createObjectUrlFromBlob(blob);
-    //       // Create an anchor element
-    //       html.AnchorElement(href: url)
-    //         ..setAttribute("download", '$imageName.jpg')
-    //         ..click();
-    //       // Revoke the object URL after download
-    //       html.Url.revokeObjectUrl(url);
-    //     } else {
-    //       debugPrint(
-    //           'Failed to download image. Status code: ${response.statusCode}');
-    //       return false;
-    //     }
-    //   } catch (e) {
-    //     debugPrint('Error occurred while downloading image: $e');
-    //     return false;
-    //   }
-    // }
-    // return true;
+    for (var imageInfo in selectedImages.values) {
+      String? imageName = imageInfo['imageName'];
+      String? imageUrl = imageInfo['imageUrl'];
+      if (imageName == null || imageUrl == null) return false;
+      try {
+        final response = await fetchDataProxy(imageUrl);
+        // final response = await http.get(Uri.parse(imageUrl));
+        if (response.statusCode == 200) {
+          // Convert response body to bytes
+          final bytes = response.bodyBytes;
+          // Create a blob from the bytes
+          final blob = html.Blob([bytes]);
+          // Create an object URL for the blob
+          final url = html.Url.createObjectUrlFromBlob(blob);
+          // Create an anchor element
+          html.AnchorElement(href: url)
+            ..setAttribute("download", '$imageName.jpg')
+            ..click();
+          // Revoke the object URL after download
+          html.Url.revokeObjectUrl(url);
+        } else {
+          debugPrint(
+              'Failed to download image. Status code: ${response.statusCode}');
+          return false;
+        }
+      } catch (e) {
+        debugPrint('Error occurred while downloading image: $e');
+        return false;
+      }
+    }
+    return true;
   }
 }

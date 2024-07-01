@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/modules/content_model.dart';
@@ -56,44 +58,6 @@ class ImageDropWidget extends StatelessWidget {
         }
       },
     );
-
-    ///
-    return Consumer<MainProvider>(
-        builder: (context, MainProvider provider, child) {
-      // return ImageDropWidget(isLeadingImage: true, provider: provider);
-      return DragTarget<ContentModel>(
-        builder: (context, candidateItems, rejectedItems) {
-          return DottedBorder(
-            color: Colors.grey,
-            dashPattern: const [6, 3],
-            borderType: BorderType.RRect,
-            radius: const Radius.circular(12),
-            child: SizedBox(
-              height: 300,
-              width: 300,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const Text('Drop area'),
-                  Consumer<MainProvider>(
-                    builder: (context, MainProvider provider, child) {
-                      return _getImageWidget(provider);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-        onAcceptWithDetails: (details) {
-          ContentModel contentModel = details.data;
-          String imgUrl =
-              'https://jd.ao1.hearst.jp:50083/hfgImagePreview/readFile.php?src=ww&jpeg=thumb&s=${contentModel.storename}&mv=${contentModel.minorversion}';
-          debugPrint('set state leading image = ----- $imgUrl');
-          provider.setLeadingImage(imgUrl);
-        },
-      );
-    });
   }
 
   Widget _getImageWidget(MainProvider provider) {
@@ -104,7 +68,11 @@ class ImageDropWidget extends StatelessWidget {
       }
       // Leading Image
       if (provider.imgUrl != null) {
-        return Image.network(provider.imgUrl!);
+        Uint8List? imageByte = provider.cacheImages[provider.imgUrl];
+        if (imageByte != null) {
+          return Image.memory(imageByte);
+        }
+        // return Image.network(provider.imgUrl!);
       } else {
         return Image.memory(provider.imgBytes!);
       }
@@ -116,7 +84,12 @@ class ImageDropWidget extends StatelessWidget {
         return Container();
       }
       if (contentInfo != null) {
-        return Image.network(contentInfo!['url']);
+        Uint8List? contentInfoImageByte =
+            provider.cacheImages[contentInfo!['url']];
+        if (contentInfoImageByte != null) {
+          return Image.memory(contentInfoImageByte);
+        }
+        // return Image.network(contentInfo!['url']);
       }
     }
     return Container();

@@ -3,9 +3,13 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/consts/enums.dart';
+import 'package:flutter_application/modules/content_model.dart';
 import 'package:flutter_application/modules/dossier_model.dart';
 import 'package:flutter_application/modules/dossier_response_model.dart';
 import 'package:flutter_application/modules/dropdown_model.dart';
+import 'package:flutter_application/modules/parent_model.dart';
+import 'package:flutter_application/utils/proxy_request.dart';
+import 'package:flutter_application/utils/utils.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -38,6 +42,7 @@ class MainProvider extends ChangeNotifier {
 
   List<DossierModel> dossierContentList = [];
   Map<int, Map<String, String>> selectedImages = {};
+  Map<String, Uint8List> cacheImages = {};
 
   void changeDropdownValue(EnumDropdown dropdownType, dynamic value) {
     switch (dropdownType) {
@@ -71,8 +76,8 @@ class MainProvider extends ChangeNotifier {
     notifyListeners();
     //TODO: Loading
     //{ channelId: channelId, issueId: issueId, dossierId: dossierId }
-    var url = 'http://localhost:5000/get_content_info';
-
+    var url = 'https://mag2d.hearst.co.jp:5000/get_content_info';
+    // var url = 'http://localhost:5000/get_content_info';
     Map<String, dynamic> request = {
       "channelId": valueChannel,
       "issueId": valueIssue,
@@ -89,7 +94,38 @@ class MainProvider extends ChangeNotifier {
         DossierResponseModel.fromJson(json.decode(response.body));
     dossierContentList = List.from(dossierResponseModel.data);
     isLoading = false;
+    await requestAllImages(dossierContentList);
     notifyListeners();
+  }
+
+  Future<void> requestAllImages(List<DossierModel> dossierContentList) async {
+    for (DossierModel dossierModel in dossierContentList) {
+      for (ContentModel child in dossierModel.childs) {
+        if (child.type == 'Image') {
+          ParentModel parentModel = child.parent;
+          String parentUrl = Utils.getImageUrl(
+              parentModel.pStorename, parentModel.pMinorversion,
+              sorPagerange: parentModel.sorPagerange);
+          String childUrl =
+              Utils.getImageUrl(child.storename, child.minorversion);
+          if (!cacheImages.containsKey(parentUrl)) {
+            await requestProxyImage(parentUrl);
+          }
+          if (!cacheImages.containsKey(childUrl)) {
+            await requestProxyImage(childUrl);
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> requestProxyImage(String url) async {
+    final response = await fetchDataProxy(url);
+    if (response.statusCode == 200) {
+      // save to map
+      Uint8List imageByte = response.bodyBytes;
+      cacheImages[url] = imageByte;
+    }
   }
 
   void setLeadingImage(String? imageUrl) {
@@ -136,8 +172,9 @@ class MainProvider extends ChangeNotifier {
 
   void _getDossierData() async {
     dossiers.clear();
-    var tempOptions = await _getDropdownData('get_dossier_list', valueIssue,
-        defaultOption: {'value': -1, 'label': '--All--'});
+    // var tempOptions = await _getDropdownData('get_dossier_list', valueIssue,
+    //     defaultOption: {'value': -1, 'label': '--All--'});
+    var tempOptions = await _getDropdownData('get_dossier_list', valueIssue);
     dossiers = List.from(tempOptions);
     notifyListeners();
   }
@@ -146,8 +183,8 @@ class MainProvider extends ChangeNotifier {
       String portName, dynamic dropdownValue,
       {Map<String, dynamic>? defaultOption}) async {
     if (dropdownValue == null) return [];
-    var url = 'http://localhost:5000/$portName';
-
+    var url = 'https://mag2d.hearst.co.jp:5000/$portName';
+    // var url = 'http://localhost:5000/$portName';
     Map<String, dynamic> request = {"param": dropdownValue!};
     final headers = {'Content-Type': 'application/json'};
     final response = await http.post(Uri.parse(url),
@@ -222,7 +259,6 @@ class MainProvider extends ChangeNotifier {
         bodyContents.indexWhere((element) => element['ukey'] == key);
     bodyContents[contentIndex]['url'] = url;
     debugPrint('update body image url === $url \n bodycontent = $bodyContents');
-
     notifyListeners();
   }
 }

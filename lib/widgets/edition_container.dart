@@ -1,11 +1,7 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_application/modules/content_model.dart';
 import 'package:flutter_application/provider/main_provider.dart';
-import 'package:flutter_application/widgets/body_content_image_widget.dart';
 import 'package:flutter_application/widgets/body_content_list_widget.dart';
-import 'package:flutter_application/widgets/body_content_textinput_widget.dart';
 import 'package:flutter_application/widgets/image_drop_widget.dart';
 import 'package:provider/provider.dart';
 

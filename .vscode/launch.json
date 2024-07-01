@@ -8,9 +8,9 @@
             "name": "flutter_application",
             "request": "launch",
             "type": "dart",
-            "args": [
-                "--web-browser-flag=--disable-web-security"
-              ],
+            // "args": [
+            //     "--web-browser-flag=--disable-web-security"
+            //   ],
         },
         {
             "name": "flutter_application (profile mode)",

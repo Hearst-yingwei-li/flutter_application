@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application/modules/content_model.dart';
 import 'package:flutter_application/modules/parent_model.dart';
@@ -18,21 +20,29 @@ class StoryLayerImages extends StatelessWidget {
     // debugPrint('>>>>> story layer images >>> list images = $listImages');
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: _getColumnChildren(listImages),
+      children: _getColumnChildren(listImages, context),
     );
   }
 
-  List<Widget> _getColumnChildren(List<List<ContentModel>> listImages) {
+  List<Widget> _getColumnChildren(
+      List<List<ContentModel>> listImages, BuildContext context) {
     List<Widget> widgets = [];
     for (List<ContentModel> childImageList in listImages) {
-      widgets.add(_getImageLayer(childImageList));
+      widgets.add(_getImageLayer(childImageList, context));
     }
     return widgets;
   }
 
-  Widget _getImageLayer(List<ContentModel> childImageList) {
+  Widget _getImageLayer(
+      List<ContentModel> childImageList, BuildContext context) {
     if (childImageList.isEmpty) return Container();
     ParentModel parentModel = childImageList.first.parent;
+    String imageParentUrl = Utils.getImageUrl(
+        parentModel.pStorename, parentModel.pMinorversion,
+        sorPagerange: parentModel.sorPagerange);
+    Uint8List? parentImageByte =
+        Provider.of<MainProvider>(context, listen: false)
+            .cacheImages[imageParentUrl];
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,10 +50,14 @@ class StoryLayerImages extends StatelessWidget {
         // Parent Image
         SizedBox(
           height: 500,
-          child: Image.network(
-            Utils.getImageUrl(parentModel.pStorename, parentModel.pMinorversion,
-                sorPagerange: parentModel.sorPagerange),
-          ),
+          child: parentImageByte != null
+              ? Image.memory(parentImageByte)
+              // Image.network(
+              //     Utils.getImageUrl(
+              //         parentModel.pStorename, parentModel.pMinorversion,
+              //         sorPagerange: parentModel.sorPagerange),
+              //   )
+              : Container(),
         ),
         const SizedBox(
           height: 10,
@@ -58,23 +72,29 @@ class StoryLayerImages extends StatelessWidget {
               ContentModel childModel = childImageList[index];
               String imageUrl = Utils.getImageUrl(
                   childModel.storename, childModel.minorversion);
+              Uint8List? imageByte =
+                  Provider.of<MainProvider>(context, listen: false)
+                      .cacheImages[imageUrl];
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: Draggable<ContentModel>(
-                      data: childModel,
-                      dragAnchorStrategy: pointerDragAnchorStrategy,
-                      feedback: DraggingImage(
-                        dragKey: draggableKey,
-                        storename: childModel.storename,
-                        minorversion: childModel.minorversion,
-                      ),
-                      child: Image.network(
-                        imageUrl,
-                      ),
-                    ),
+                    child: imageByte != null
+                        ? Draggable<ContentModel>(
+                            data: childModel,
+                            dragAnchorStrategy: pointerDragAnchorStrategy,
+                            feedback: DraggingImage(
+                              dragKey: draggableKey,
+                              storename: childModel.storename,
+                              minorversion: childModel.minorversion,
+                            ),
+                            child: Image.memory(imageByte),
+                            // Image.network(
+                            //   imageUrl,
+                            // ),
+                          )
+                        : Container(),
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
@@ -87,7 +107,12 @@ class StoryLayerImages extends StatelessWidget {
                                 .containsKey(childModel.id),
                             onChanged: (value) {
                               provider.changeImageSelectionStatus(
-                                  childModel.id, childModel.name, imageUrl);
+                                  childModel.id,
+                                  childModel.name,
+                                  Utils.getImageDownloadUrl(
+                                      childModel.storename,
+                                      childModel.minorversion,
+                                      childModel.name));
                             },
                           );
                         },

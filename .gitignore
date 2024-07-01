@@ -44,3 +44,8 @@ app.*.map.json
 
 # Tests widget
 /lib/tests/
+
+/firebase.json
+/lib/firebase_options.dart
+/android/app/google-services.json
+
